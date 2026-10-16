@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="bg" cx="35%" cy="30%" r="85%">
+      <stop offset="0" stop-color="#2a1d5c"/>
+      <stop offset=".55" stop-color="#0d0b26"/>
+      <stop offset="1" stop-color="#05040f"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- 별 -->
+  <circle cx="10" cy="11" r="1.1" fill="#fff"/>
+  <circle cx="53" cy="9" r="1.4" fill="#fff"/>
+  <circle cx="57" cy="24" r=".8" fill="#d8ccff"/>
+  <circle cx="7" cy="30" r=".8" fill="#cfe0ff"/>
+  <!-- 안드로이드 머리 -->
+  <line x1="22.5" y1="27" x2="17.5" y2="18" stroke="#3DDC84" stroke-width="3" stroke-linecap="round"/>
+  <line x1="41.5" y1="27" x2="46.5" y2="18" stroke="#3DDC84" stroke-width="3" stroke-linecap="round"/>
+  <path d="M10 50 A22 22 0 0 1 54 50 Z" fill="#3DDC84"/>
+  <circle cx="23" cy="40" r="3" fill="#fff"/>
+  <circle cx="41" cy="40" r="3" fill="#fff"/>
+</svg>
