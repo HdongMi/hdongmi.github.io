@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>사무직 생존템 운영 현황</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+/* 토스 스타일: 회색 바탕 위 흰 카드, 큰 숫자, 파란 포인트 하나 */
+:root{
+  --bg:#F2F4F6; --card:#FFFFFF; --fg:#191F28; --sub:#4E5968; --muted:#8B95A1; --line:#E5E8EB; --soft:#F9FAFB;
+  --blue:#3182F6; --blue-soft:#E8F3FF; --daily:#3182F6; --follow:#00B8A9; --money:#FF8A00; --done:#03B26C;
+  --font:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101013; --card:#1C1C21; --fg:#F2F4F6; --sub:#B0B8C1; --muted:#7E8792; --line:#2C2C35; --soft:#24242B;
+  --blue:#4C9AFF; --blue-soft:#1B2A44; --daily:#4C9AFF; --follow:#1FD1C1; --money:#FF9F2E; --done:#2DD488; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101013; --card:#1C1C21; --fg:#F2F4F6; --sub:#B0B8C1; --muted:#7E8792; --line:#2C2C35; --soft:#24242B;
+  --blue:#4C9AFF; --blue-soft:#1B2A44; --daily:#4C9AFF; --follow:#1FD1C1; --money:#FF9F2E; --done:#2DD488; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:560px;margin:0 auto;padding-block:20px 48px;display:flex;flex-direction:column;gap:12px}
+header{padding:8px 4px 4px}
+header .eyebrow{font-size:13px;color:var(--muted);font-weight:600}
+header h1{font-size:24px;line-height:1.35;margin:6px 0 0;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.card{background:var(--card);border-radius:20px;padding:22px 20px}
+.card h2{font-size:17px;font-weight:700;margin:0 0 4px;letter-spacing:-.01em}
+.card .desc{font-size:14px;color:var(--muted);margin:0 0 16px}
+.big{font-size:34px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.big small{font-size:18px;color:var(--muted);font-weight:600;margin-left:2px}
+.bar{height:10px;background:var(--line);border-radius:99px;overflow:hidden;margin:14px 0 10px}
+.bar>i{display:block;height:100%;background:var(--blue);border-radius:99px;min-width:4px}
+.next{display:flex;align-items:center;gap:12px;background:var(--soft);border-radius:14px;padding:14px;margin-top:16px}
+.next .ic{width:40px;height:40px;border-radius:12px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-weight:700;font-size:15px;flex:none}
+.next b{display:block;font-size:15px}
+.next span{font-size:13px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:var(--card);border-radius:20px;padding:18px}
+.stat .k{font-size:13px;color:var(--muted);font-weight:600}
+.stat .v{font-size:24px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat .v small{font-size:14px;color:var(--muted);font-weight:600}
+.mix{display:flex;height:14px;border-radius:99px;overflow:hidden;gap:3px;margin:4px 0 14px}
+.mix i{display:block;height:100%}
+.legend{display:flex;flex-direction:column;gap:10px}
+.legend div{display:flex;align-items:center;gap:10px;font-size:15px}
+.legend .dot{width:10px;height:10px;border-radius:50%;flex:none}
+.legend .n{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
+.legend .p{color:var(--muted);font-size:13px;width:38px;text-align:right}
+.weekdays,.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.weekdays div{font-size:12px;color:var(--muted);text-align:center;padding-bottom:4px}
+.cell{aspect-ratio:1/1.12;max-width:100%;border:0;border-radius:12px;background:var(--soft);color:var(--fg);font:inherit;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0;position:relative}
+.cell:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.cell .d{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.cell .t{width:6px;height:6px;border-radius:50%}
+.cell.empty{background:transparent;cursor:default}
+.cell.today{box-shadow:inset 0 0 0 2px var(--blue)}
+.cell.posted{background:var(--blue-soft)}
+.cell.posted::after{content:"✓";position:absolute;top:3px;right:6px;font-size:10px;color:var(--done);font-weight:700}
+.cell.money .d{color:var(--money)}
+.phase{display:flex;gap:8px;margin-top:14px}
+.phase div{flex:1;background:var(--soft);border-radius:12px;padding:12px}
+.phase b{display:block;font-size:14px}
+.phase span{font-size:12px;color:var(--muted)}
+.list{display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:14px;padding:14px 0;border-top:1px solid var(--line);text-decoration:none;color:inherit}
+.row:first-child{border-top:0;padding-top:4px}
+.row .ic{width:42px;height:42px;border-radius:50%;background:var(--soft);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;line-height:1.1}
+.row .ic b{font-size:14px;color:var(--money)}
+.row .ic span{font-size:10px;color:var(--muted)}
+.row .mid{min-width:0;flex:1}
+.row .mid b{display:block;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .mid span{font-size:13px;color:var(--muted)}
+.row .r{text-align:right;flex:none}
+.row .r b{display:block;font-size:15px;font-variant-numeric:tabular-nums}
+.row .r span{font-size:12px;color:var(--blue);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--soft);border-radius:99px;padding:8px 14px;font-size:14px;font-weight:600}
+.chip em{font-style:normal;color:var(--blue);margin-left:4px}
+.empty-state{text-align:center;padding:18px 8px 6px;color:var(--muted);font-size:14px;line-height:1.6}
+.empty-state b{display:block;color:var(--fg);font-size:16px;margin-bottom:4px}
+footer{font-size:12px;color:var(--muted);text-align:center;padding-top:8px;line-height:1.6}
+/* 바텀시트 */
+.sheet-bg{position:fixed;inset:0;background:#0007;display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{background:var(--card);width:100%;max-width:560px;border-radius:24px 24px 0 0;
+  padding:12px max(20px,env(safe-area-inset-left,0px)) calc(28px + env(safe-area-inset-bottom,0px));max-height:85vh;overflow:auto;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.grab{width:40px;height:4px;border-radius:9px;background:var(--line);margin:0 auto 16px}
+.sheet .tag{display:inline-block;font-size:12px;font-weight:700;border-radius:8px;padding:4px 8px;margin-right:6px}
+.sheet h3{font-size:20px;margin:12px 0 4px}
+.sheet .meta{font-size:13px;color:var(--muted)}
+.post{white-space:pre-wrap;background:var(--soft);border-radius:16px;padding:16px;font-size:15px;line-height:1.65;margin:16px 0}
+.kv{display:flex;flex-direction:column;gap:10px;font-size:14px}
+.kv div{display:flex;justify-content:space-between;gap:12px}
+.kv span{color:var(--muted);flex:none}
+.kv b{font-weight:600;text-align:right;word-break:break-all}
+.btn{display:block;width:100%;border:0;border-radius:14px;background:var(--blue);color:#fff;font:inherit;font-size:16px;font-weight:700;padding:15px;margin-top:20px;cursor:pointer;text-align:center;text-decoration:none}
+.btn.ghost{background:var(--soft);color:var(--fg)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow" id="updated"></div>
+    <h1>사무직 생존템<br>쓰레드 운영 현황</h1>
+  </header>
+
+  <section class="card" aria-label="진행률">
+    <div class="desc" style="margin:0">30일 플랜 진행률</div>
+    <div class="big" id="dayBig"></div>
+    <div class="bar"><i id="prog"></i></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)"><span id="progL"></span><span id="progR"></span></div>
+    <div class="next"><div class="ic" id="nextIc"></div><div><b id="nextT"></b><span id="nextS"></span></div></div>
+  </section>
+
+  <section class="stats" id="stats"></section>
+
+  <section class="card">
+    <h2>글 구성</h2>
+    <p class="desc">일상글 사이사이에 수익화 글을 섞었어요</p>
+    <div class="mix" id="mix"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="card">
+    <h2>30일 달력</h2>
+    <p class="desc">날짜를 누르면 그날 올라갈 글을 볼 수 있어요</p>
+    <div class="weekdays"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div>
+    <div class="cal" id="cal"></div>
+    <div class="phase">
+      <div><b>1~10일차</b><span>링크 없이 계정 키우기</span></div>
+      <div><b>11~30일차</b><span>이틀에 한 번 수익화 글</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>연결된 쿠팡 상품</h2>
+    <p class="desc" id="prodDesc"></p>
+    <div class="list" id="prods"></div>
+  </section>
+
+  <section class="card">
+    <h2>톤 테스트</h2>
+    <p class="desc">수익화 글마다 다른 톤으로 써서 반응을 비교해요</p>
+    <div class="chips" id="tones"></div>
+  </section>
+
+  <section class="card">
+    <h2>성과</h2>
+    <div class="empty-state"><b>아직 쌓인 데이터가 없어요</b>조회수와 클릭 수는 글이 올라가기 시작하면<br>여기에 모아서 보여드릴게요</div>
+  </section>
+
+  <footer>가격은 쿠팡파트너스에서 링크를 만든 날 기준이에요<br>사진·영상 Pixabay</footer>
+</div>
+
+<div class="sheet-bg" id="sheetBg" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sTitle">
+    <div class="grab"></div>
+    <div id="sTags"></div>
+    <h3 id="sTitle"></h3>
+    <div class="meta" id="sMeta"></div>
+    <div class="post" id="sBody"></div>
+    <div class="kv" id="sKv"></div>
+    <div id="sBtns"></div>
+  </div>
+</div>
+
+<script>
+const DATA = {"start": "2026-10-21", "generated": "10월 20일 22:44", "posts": [{"day": 1, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "1280537", "body": "출근해서 제일 먼저 하는 일이 메일 확인이 아니라 점심 메뉴 검색인 사람\n9시 5분에 이미 점심 생각\n11시 반부터는 일이 손에 안 잡힘\n그 와중에 메뉴는 결국 어제랑 비슷한 거 고름\n다들 출근하면 제일 먼저 뭐 함?", "first": "출근해서 제일 먼저 하는 일이 메일 확인이 아니라 점심 메뉴 검색인 사람", "posted_at": ""}, {"day": 2, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "video", "media_id": "6970", "body": "오후 3시는 왜 매일 같은 시간에 졸린 걸까\n점심 먹고 1시간 반쯤 지나면 눈꺼풀이 내려옴\n커피 두 잔째인데도 그대로\n결국 화장실 가서 손 씻고 오는 게 루틴이 됨\n다들 3시 졸음 어떻게 버팀?", "first": "오후 3시는 왜 매일 같은 시간에 졸린 걸까", "posted_at": ""}, {"day": 3, "type": "팔로워", "tone": "팔로워", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "593333", "body": "사무직 하면서 알게 된 것 5개\n1. 메일 제목에 날짜 넣으면 나중에 찾기 편함\n2. 퇴근 10분 전에 내일 할 일 3개만 적어둠\n3. 회의 끝나면 바로 요약 한 줄 보냄\n4. 오후엔 모니터 밝기 한 칸 낮춤\n5. 점심 먹고 10분 걷기\n사무직 생존 기록 매일 올리는 중", "first": "사무직 하면서 알게 된 것 5개", "posted_at": ""}, {"day": 4, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "3447456", "body": "히터 틀기 시작하면 사무실이 사막이 됨\n오후만 되면 입술 갈라지고 눈이 뻑뻑함\n옆자리는 덥다고 하고 나는 춥고\n온도 조절기는 하필 팀장님 자리 옆\n이 계절 사무실 온도 전쟁 다들 있지?", "first": "히터 틀기 시작하면 사무실이 사막이 됨", "posted_at": ""}, {"day": 5, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "1274699", "body": "퇴근 5분 전에 오는 \"잠깐 시간 돼요?\"\n이 말 듣는 순간 가방 다시 내려놓음\n잠깐이 30분 되는 건 기본\n그래도 웃으면서 네 함\n퇴근 직전에 받는 메시지 중 제일 무서운 거 뭐임?", "first": "퇴근 5분 전에 오는 \"잠깐 시간 돼요?\"", "posted_at": ""}, {"day": 6, "type": "팔로워", "tone": "팔로워", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "2303851", "body": "사무직 공감 테스트\n□ 점심 메뉴 고르는 데 10분 이상 씀\n□ 엑셀 단축키 하나 알면 누구한테든 알려주고 싶음\n□ 금요일 오후 4시부터 시계만 봄\n□ 책상 서랍에 비상식량 있음\n몇 개 해당됨? 댓글로", "first": "사무직 공감 테스트", "posted_at": ""}, {"day": 7, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "449952", "body": "점심시간 1시간인데 밥 먹는 건 20분\n나머지 40분은 줄 서고 메뉴 고르고 걷는 시간\n가끔 혼자 먹고 싶은 날도 있음\n근데 혼밥한다고 하면 다들 무슨 일 있냐고 물어봄\n점심 혼밥파 vs 같이파?", "first": "점심시간 1시간인데 밥 먹는 건 20분", "posted_at": ""}, {"day": 8, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "2181994", "body": "회의실 예약 전쟁은 어느 회사나 똑같나\n10시 회의실 잡으려면 전날 퇴근 전에 잡아야 함\n막상 회의는 15분 만에 끝남\n남은 45분 동안 회의실에서 메일 쓰는 사람 꼭 있음\n회의실 잡는 꿀팁 있으면 공유 좀", "first": "회의실 예약 전쟁은 어느 회사나 똑같나", "posted_at": ""}, {"day": 9, "type": "팔로워", "tone": "팔로워", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "1868496", "body": "모니터 오래 보는 사무직이면 바꿔볼 설정 4개\n1. 다크모드\n2. 글자 크기 110%\n3. 저녁엔 블루라이트 필터 자동\n4. 20분마다 창밖 20초 보기 알림\n작은 설정인데 해볼 만함\n사무직 생존 기록 계속 올림", "first": "모니터 오래 보는 사무직이면 바꿔볼 설정 4개", "posted_at": ""}, {"day": 10, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "video", "media_id": "21844", "body": "금요일 오후 4시 50분이 일주일 중에 제일 김\n5시 넘으면 갑자기 시간이 빨라짐\n월요일 아침도 같은 원리\n시간 상대성이론은 사무실에서 증명됨\n다들 일주일 중 제일 긴 시간 언제임?", "first": "금요일 오후 4시 50분이 일주일 중에 제일 김", "posted_at": ""}, {"day": 11, "type": "수익화", "tone": "비교형", "product_group": "USB·무선 미니 가습기", "product_name": "Bonum USB 무드등 미니 가습기 HL-HU1000 (4,900원) / Mankiw 무선 듀얼미스트 500ml (9,900원)", "price": "", "links": [{"label": "USB형", "url": "https://link.coupang.com/a/h0neKte7Lo"}, {"label": "무선형", "url": "https://link.coupang.com/a/h0njXbzLky"}], "media_type": "", "media_id": "", "body": "사무실 미니 가습기 고르다가 30분 날린 사람\nUSB형: 컴퓨터에 꽂아두면 끝, 대신 자리 옮길 땐 못 들고 감\n무선형: 회의실까지 들고 가도 됨, 대신 충전을 챙겨야 함\n자리에 오래 앉아 있으면 USB형, 이동 많으면 무선형\n본인은 어느 쪽임?\n정확히 뭔지는 첫 댓글에", "first": "사무실 미니 가습기 고르다가 30분 날린 사람", "posted_at": ""}, {"day": 12, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "620822", "body": "엑셀 파일명의 진화\n최종.xlsx\n최종_수정.xlsx\n최종_진짜최종.xlsx\n최종_진짜최종_팀장님확인.xlsx\n다들 파일명 어디까지 가봄?", "first": "엑셀 파일명의 진화", "posted_at": ""}, {"day": 13, "type": "수익화", "tone": "고백형", "product_group": "끈적임 없는 핸드크림", "product_name": "엠디스픽 바리스타 핸드크림 무향 50g 2개", "price": "14010", "links": [{"label": "", "url": "https://link.coupang.com/a/h0nj2WxNYa"}], "media_type": "", "media_id": "", "body": "핸드크림 바르면 키보드가 미끄러워서 그냥 참는 사람들\n겨울 사무실 히터 켜지면 손등이 제일 먼저 하얗게 일어남\n근데 바르자마자 스며드는 타입이 따로 있었음\n나만 몰랐나\n겨울 사무실 손 건조 다들 어떻게 함?\n정확히 뭔지는 첫 댓글에", "first": "핸드크림 바르면 키보드가 미끄러워서 그냥 참는 사람들", "posted_at": ""}, {"day": 14, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "video", "media_id": "9005", "body": "출근길 지하철에서 자리 앉으면 그날 운 다 쓴 느낌\n서서 가면 회사 도착 전에 이미 퇴근하고 싶음\n앉아서 가면 내릴 역 지나칠까 봐 못 잠\n결국 어느 쪽이든 피곤함\n출근길 지하철 최대 난제 뭐임?", "first": "출근길 지하철에서 자리 앉으면 그날 운 다 쓴 느낌", "posted_at": ""}, {"day": 15, "type": "수익화", "tone": "정보형", "product_group": "사무실 무릎 담요", "product_name": "더자리 포시즌 웨어러블 오버랩 똑딱 담요", "price": "8460", "links": [{"label": "", "url": "https://link.coupang.com/a/h0nj8vPm8a"}], "media_type": "", "media_id": "", "body": "사무실 담요 고를 때 볼 것 3개\n1. 어깨에 두를 수 있는 크기인지\n2. 의자에 걸어둘 끈이나 단추가 있는지\n3. 세탁기에 돌려도 되는지\n11월부터 사무실 추위 시작\n다들 담요 하나씩 있음?\n정확히 뭔지는 첫 댓글에", "first": "사무실 담요 고를 때 볼 것 3개", "posted_at": ""}, {"day": 16, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "1875813", "body": "입사 동기 단톡방 생존 기간\n1년 차: 매일 대화\n2년 차: 생일 축하만\n3년 차: 누가 퇴사한다고 할 때만 울림\n다들 동기 단톡방 아직 살아있음?", "first": "입사 동기 단톡방 생존 기간", "posted_at": ""}, {"day": 17, "type": "수익화", "tone": "장면형", "product_group": "보온 텀블러", "product_name": "락앤락 메트로 머그 텀블러 600ml", "price": "21270", "links": [{"label": "", "url": "https://link.coupang.com/a/h0nke3aySi"}], "media_type": "", "media_id": "", "body": "오전 회의 두 개 끝나고 자리 와서 마신 커피가 차가우면 그날 기분 끝남\n종이컵은 30분이면 식고\n머그는 데우러 탕비실 왕복\n뚜껑 닫는 보온형은 점심 전까지 버틴다고 함\n커피 식는 거 신경 쓰이는 사람?\n정확히 뭔지는 첫 댓글에", "first": "오전 회의 두 개 끝나고 자리 와서 마신 커피가 차가우면 그날 기분 끝남", "posted_at": ""}, {"day": 18, "type": "팔로워", "tone": "팔로워", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "849825", "body": "사무직이면 알아두면 편한 단축키 5개\nWin + V : 클립보드 기록\nWin + Shift + S : 화면 캡처\nCtrl + Shift + T : 닫은 탭 다시 열기\nWin + Tab : 열린 창 한눈에 보기\nCtrl + ; : 엑셀 오늘 날짜\n저장해두고 하나씩 써보셈", "first": "사무직이면 알아두면 편한 단축키 5개", "posted_at": ""}, {"day": 19, "type": "수익화", "tone": "질문형", "product_group": "마우스 손목 받침", "product_name": "VHBW EVA 손목 받침 마우스 패드", "price": "7900", "links": [{"label": "", "url": "https://link.coupang.com/a/h0nkkp0Hsq"}], "media_type": "", "media_id": "", "body": "마우스 쓰다가 오후에 손목 시큰한 사람 몇 명이나 될까\n손목이 꺾인 채로 하루 종일 있으면 그럴 수 있다고 함\n회사 책상은 못 바꾸니까\n손목 밑에 하나 받쳐서 각도부터 바꾸는 사람들이 있더라\n다들 손목 받침 씀?\n정확히 뭔지는 첫 댓글에", "first": "마우스 쓰다가 오후에 손목 시큰한 사람 몇 명이나 될까", "posted_at": ""}, {"day": 20, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "2982270", "body": "메일 끝에 \"확인 부탁드립니다\" 쓸지 \"확인 부탁드려요\" 쓸지 고민함\n받는 사람이 팀장님이면 드립니다\n옆 팀 동기면 드려요\n처음 연락하는 사람이면 드립니다 쓰고 두 번 확인\n다들 메일 말투 기준 있음?", "first": "메일 끝에 \"확인 부탁드립니다\" 쓸지 \"확인 부탁드려요\" 쓸지 고민함", "posted_at": ""}, {"day": 21, "type": "수익화", "tone": "가격형", "product_group": "사무실 간식 박스", "product_name": "한봄 사무실간식 다과 과자박스 개별포장", "price": "25900", "links": [{"label": "", "url": "https://link.coupang.com/a/h0nkqo0qsK"}], "media_type": "", "media_id": "", "body": "오후 4시 편의점 과자 하나 1,500원\n일주일이면 7,500원, 한 달이면 3만 원\n편의점 왕복 15분은 덤\n그래서 서랍에 박스로 채워두는 사람들이 있더라\n사무실 서랍 간식 뭐 넣어둠?\n정확히 뭔지는 첫 댓글에", "first": "오후 4시 편의점 과자 하나 1,500원", "posted_at": ""}, {"day": 22, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "2306471", "body": "연차 쓰는 날은 아침 8시에 눈이 떠짐\n출근하는 날은 알람 3개로도 못 일어나는데\n몸이 회사 시간을 기억하는 듯\n그래서 그냥 일어나서 카페 감\n연차 날 다들 뭐 함?", "first": "연차 쓰는 날은 아침 8시에 눈이 떠짐", "posted_at": ""}, {"day": 23, "type": "수익화", "tone": "고백형", "product_group": "모니터 받침대", "product_name": "엠디유마켓 프리미엄 심플 모니터 받침대", "price": "6500", "links": [{"label": "", "url": "https://link.coupang.com/a/h0nkvRbSQC"}], "media_type": "", "media_id": "", "body": "퇴근할 때 목이 앞으로 빠지는 게 의자 탓이 아니라 모니터 높이 탓일 수도 있다는 거\n화면 윗선이 눈높이보다 낮으면 고개가 계속 숙여진다고 함\n회사에 요청하기엔 애매하고\n책상 위에 올리기만 하는 받침대가 따로 있더라\n나만 몰랐나\n정확히 뭔지는 첫 댓글에", "first": "퇴근할 때 목이 앞으로 빠지는 게 의자 탓이 아니라 모니터 높이 탓일 수도 있다는 거", "posted_at": ""}, {"day": 24, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "933098", "body": "프린터 고장은 꼭 급한 출력 있을 때 남\n용지 걸림 표시는 뜨는데 용지는 안 보임\n뚜껑 다 열어보다가 손에 토너 묻음\n결국 옆 층 프린터 가서 뽑음\n회사 프린터랑 사이 좋은 사람 있음?", "first": "프린터 고장은 꼭 급한 출력 있을 때 남", "posted_at": ""}, {"day": 25, "type": "수익화", "tone": "질문형", "product_group": "허리 등받이 쿠션", "product_name": "마메 바른자세 메모리폼 등받이쿠션", "price": "10900", "links": [{"label": "", "url": "https://link.coupang.com/a/h0nkBCQsJU"}], "media_type": "", "media_id": "", "body": "오후만 되면 허리가 의자에서 점점 미끄러져 내려가는 사람\n5시쯤엔 거의 누운 자세\n회사 의자는 못 바꾸니까 허리 뒤에 뭘 대는 사람들이 있더라\n쿠션 하나로 앉는 자세가 달라진다길래 찾아봄\n의자 오래 앉는 사람 허리 괜찮음?\n정확히 뭔지는 첫 댓글에", "first": "오후만 되면 허리가 의자에서 점점 미끄러져 내려가는 사람", "posted_at": ""}, {"day": 26, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "3548021", "body": "월급날 아침 9시 통장 확인\n9시 1분 카드값 빠짐\n9시 2분 관리비 빠짐\n9시 3분 통장이 원래대로 돌아옴\n월급 스쳐 지나가는 데 다들 몇 분 걸림?", "first": "월급날 아침 9시 통장 확인", "posted_at": ""}, {"day": 27, "type": "수익화", "tone": "정보형", "product_group": "사무실 발받침", "product_name": "카사브 바른자세 6단 높이조절 책상 발받침대", "price": "20700", "links": [{"label": "", "url": "https://link.coupang.com/a/h0nkHa912G"}], "media_type": "", "media_id": "", "body": "발받침 필요한 사람 체크\n□ 의자에 앉으면 발뒤꿈치가 살짝 뜸\n□ 오후에 종아리가 땡김\n□ 책상 밑에 박스 놓고 발 올려본 적 있음\n하나라도 해당되면 찾아볼 만함\n다들 책상 밑에 뭐 둠?\n정확히 뭔지는 첫 댓글에", "first": "발받침 필요한 사람 체크", "posted_at": ""}, {"day": 28, "type": "일상", "tone": "일상", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "video", "media_id": "21985", "body": "퇴근하고 집 오면 7시 반\n씻고 밥 먹으면 9시\n폰 좀 보면 11시\n오늘 내 시간은 2시간이었음\n다들 퇴근 후 시간 어떻게 씀?", "first": "퇴근하고 집 오면 7시 반", "posted_at": ""}, {"day": 29, "type": "수익화", "tone": "고백형", "product_group": "케이블 정리 클립", "product_name": "아이앤트 케이블 선정리 클립 30개", "price": "8920", "links": [{"label": "", "url": "https://link.coupang.com/a/h0nkMUPp1w"}], "media_type": "", "media_id": "", "body": "책상 밑 충전선 엉킨 거 그냥 원래 그런 줄 알았음\n노트북, 폰, 이어폰 선이 한 데 뭉쳐서 발에 걸림\n선 정리 클립 몇 개로 책상 위가 달라 보인다고 함\n이름 몰라서 \"선 묶는 거\"로 검색해도 나옴\n나만 몰랐나\n정확히 뭔지는 첫 댓글에", "first": "책상 밑 충전선 엉킨 거 그냥 원래 그런 줄 알았음", "posted_at": ""}, {"day": 30, "type": "팔로워", "tone": "팔로워", "product_group": "", "product_name": "", "price": "", "links": [], "media_type": "photo", "media_id": "791939", "body": "사무직 한 달 기록 올리면서 알게 된 것\n1. 다들 3시에 졸림\n2. 다들 프린터랑 사이 안 좋음\n3. 다들 금요일 4시 50분이 제일 김\n혼자 그런 줄 알았는데 아니었음\n내일부터 2달 차 기록 시작\n같이 버틸 사람 팔로우", "first": "사무직 한 달 기록 올리면서 알게 된 것", "posted_at": ""}]};
+const TYPE = {"일상":{c:"var(--daily)",n:"일상글"},"팔로워":{c:"var(--follow)",n:"팔로워 모으는 글"},"수익화":{c:"var(--money)",n:"수익화 글"}};
+const $ = id => document.getElementById(id);
+const won = n => n ? Number(n).toLocaleString("ko-KR") + "원" : "";
+const start = new Date(DATA.start + "T00:00:00+09:00");
+const dateOf = d => new Date(start.getTime() + (d - 1) * 864e5);
+const md = dt => `${dt.getMonth()+1}/${dt.getDate()}`;
+const WD = "일월화수목금토";
+const kstToday = () => { const n = new Date(Date.now() + 9*36e5); return new Date(n.toISOString().slice(0,10) + "T00:00:00+09:00"); };
+const dayIdx = Math.floor((kstToday() - start) / 864e5) + 1;
+const posts = DATA.posts;
+const posted = posts.filter(p => p.posted_at);
+
+$("updated").textContent = `${DATA.generated} 기준`;
+const cur = Math.max(0, Math.min(30, dayIdx));
+$("dayBig").innerHTML = dayIdx < 1 ? `시작 전<small> · ${md(start)} 시작</small>` : `${cur}일차<small> / 30일</small>`;
+$("prog").style.width = (posted.length / 30 * 100) + "%";
+$("progL").textContent = `게시 ${posted.length}개`;
+$("progR").textContent = `남은 글 ${30 - posted.length}개`;
+const nxt = posts.find(p => !p.posted_at);
+if (nxt) {
+  const dt = dateOf(Math.max(nxt.day, dayIdx < 1 ? 1 : dayIdx));
+  $("nextIc").textContent = nxt.day;
+  $("nextT").textContent = `다음 글 · ${TYPE[nxt.type].n}`;
+  $("nextS").textContent = `${md(dt)}(${WD[dt.getDay()]}) 12:10~12:45 사이 · ${nxt.first}`;
+}
+
+const links = posts.filter(p => p.type === "수익화" && p.link).length;
+const media = posts.filter(p => p.media_id).length;
+$("stats").innerHTML = [
+  ["준비된 글", 30, "개"], ["게시 완료", posted.length, "개"],
+  ["쿠팡 링크", links, " / 10"], ["사진·영상", media, "개"],
+].map(([k,v,u]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}<small>${u}</small></div></div>`).join("");
+
+const cnt = t => posts.filter(p => p.type === t).length;
+$("mix").innerHTML = Object.keys(TYPE).map(t => `<i style="flex:${cnt(t)};background:${TYPE[t].c}"></i>`).join("");
+$("legend").innerHTML = Object.keys(TYPE).map(t =>
+  `<div><span class="dot" style="background:${TYPE[t].c}"></span>${TYPE[t].n}<span class="n">${cnt(t)}개</span><span class="p">${Math.round(cnt(t)/30*100)}%</span></div>`).join("");
+
+const lead = start.getDay();
+let cells = Array.from({length: lead}, () => `<div class="cell empty"></div>`).join("");
+posts.forEach(p => {
+  const dt = dateOf(p.day);
+  const cls = ["cell", p.posted_at ? "posted" : "", p.day === dayIdx ? "today" : "", p.type === "수익화" ? "money" : ""].join(" ");
+  cells += `<button class="${cls}" data-day="${p.day}" aria-label="${md(dt)} ${p.day}일차 ${TYPE[p.type].n}">
+    <span class="d">${dt.getDate()}</span><span class="t" style="background:${TYPE[p.type].c}"></span></button>`;
+});
+$("cal").innerHTML = cells;
+
+const money = posts.filter(p => p.type === "수익화");
+$("prodDesc").textContent = `쿠팡 랭킹 상위에서 골랐어요 · ${money.filter(p=>p.link).length}개 연결됨`;
+$("prods").innerHTML = money.map(p => {
+  const dt = dateOf(p.day);
+  const first = p.links[0];
+  return `<a class="row" href="${first ? first.url : '#'}" target="_blank" rel="noopener sponsored">
+    <div class="ic"><b>${p.day}</b><span>일차</span></div>
+    <div class="mid"><b>${p.product_name || p.product_group}</b><span>${md(dt)}(${WD[dt.getDay()]}) · ${p.tone}</span></div>
+    <div class="r"><b>${p.price ? won(p.price) : (p.links.length > 1 ? `${p.links.length}개 비교` : "")}</b><span>보기</span></div></a>`;
+}).join("");
+
+const tones = {};
+money.forEach(p => tones[p.tone] = (tones[p.tone] || 0) + 1);
+$("tones").innerHTML = Object.entries(tones).sort((a,b)=>b[1]-a[1]).map(([t,n]) => `<span class="chip">${t}<em>${n}</em></span>`).join("");
+
+let lastFocus = null;
+function openSheet(day){
+  const p = posts.find(x => x.day === day); const dt = dateOf(day);
+  lastFocus = document.activeElement;
+  $("sTags").innerHTML = `<span class="tag" style="background:var(--soft);color:${TYPE[p.type].c}">${TYPE[p.type].n}</span>` +
+    (p.tone && p.type === "수익화" ? `<span class="tag" style="background:var(--soft);color:var(--sub)">${p.tone}</span>` : "") +
+    (p.posted_at ? `<span class="tag" style="background:var(--soft);color:var(--done)">게시 완료</span>` : "");
+  $("sTitle").textContent = `${p.day}일차 · ${md(dt)}(${WD[dt.getDay()]})`;
+  $("sMeta").textContent = p.posted_at ? `${p.posted_at}에 올라갔어요` : "12:10~12:45 사이에 자동으로 올라가요";
+  $("sBody").textContent = (p.type === "수익화" ? "[광고] " : "") + p.body;
+  const kv = [];
+  if (p.media_type) kv.push(["첨부", (p.media_type === "video" ? "영상" : "사진") + " · Pixabay"]);
+  if (p.product_name) kv.push(["상품", p.product_name]);
+  if (p.price) kv.push(["가격", won(p.price) + " (링크 만든 날 기준)"]);
+  if (p.type === "수익화") kv.push(["첫 댓글", "쿠팡 링크 + 공정위 문구"]);
+  $("sKv").innerHTML = kv.map(([k,v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("");
+  $("sBtns").innerHTML = p.links.map(l => `<a class="btn" href="${l.url}" target="_blank" rel="noopener sponsored">${l.label ? l.label + " 상품 보기" : "쿠팡에서 상품 보기"}</a>`).join("")
+    + `<button class="btn ghost" id="sClose">닫기</button>`;
+  $("sheetBg").hidden = false;
+  $("sClose").focus();
+  $("sClose").onclick = closeSheet;
+}
+function closeSheet(){ $("sheetBg").hidden = true; if (lastFocus) lastFocus.focus(); }
+$("cal").addEventListener("click", e => { const b = e.target.closest("button[data-day]"); if (b) openSheet(+b.dataset.day); });
+$("sheetBg").addEventListener("click", e => { if (e.target.id === "sheetBg") closeSheet(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("sheetBg").hidden) closeSheet(); });
+</script>
+</body>
+</html>
